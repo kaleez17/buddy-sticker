@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+const { useState, useEffect, useRef } = React;
 
 // ── DATA ──────────────────────────────────────────────────────────────────────
 const PRODUCTS = [
@@ -1152,3 +1152,5 @@ function SuccessPage({ navTo, setCart, setOrderDone }) {
     </div>
   );
 }
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(<App />);
