@@ -8,9 +8,95 @@
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 </head>
-<body style="margin: 0; background-color: #0a0a0a;">
+<body style="margin: 0; background: #0a0a0a;">
     <div id="root"></div>
 
-    <script type="text/babel" src="./App.jsx"></script>
+    <script type="text/babel">
+        // Use React globals instead of imports
+        const { useState, useEffect, useRef } = React;
+
+        // --- DATA ---
+        const PRODUCTS = [
+            { id: 1, name: "Skull Drip", category: "Gothic", price: 149, rating: 4.9, reviews: 87, emoji: "💀", tag: "BESTSELLER", desc: "Hand-drawn dripping skull, weatherproof vinyl. Perfect for helmets & tanks.", sizes: ["3\"", "5\"", "8\""], colors: ["Black/White", "Red/Black", "Gold/Black"] },
+            { id: 2, name: "Street Tiger", category: "Animals", price: 199, rating: 4.8, reviews: 63, emoji: "🐯", tag: "HOT", desc: "Aggressive tiger face in graffiti style. Fade-resistant outdoor ink.", sizes: ["4\"", "6\"", "10\""], colors: ["Orange/Black", "White/Black", "Neon/Black"] },
+            { id: 3, name: "Flame Rider", category: "Bikes", price: 249, rating: 5.0, reviews: 41, emoji: "🔥", tag: "NEW", desc: "Full-wrap flame kit for bikes & cars. UV-resistant, 5-year guarantee.", sizes: ["Kit S", "Kit M", "Kit L"], colors: ["Red/Orange", "Blue/White", "Green/Yellow"] },
+            { id: 4, name: "Oni Mask", category: "Gothic", price: 179, rating: 4.7, reviews: 52, emoji: "👹", tag: "TRENDING", desc: "Japanese oni demon mask, ultra-detailed linework on matte black vinyl.", sizes: ["3\"", "5\"", "8\""], colors: ["Red/Black", "Blue/Black", "Gold/Black"] },
+            { id: 5, name: "Chrome Eagle", category: "Patriotic", price: 219, rating: 4.8, reviews: 38, emoji: "🦅", tag: "POPULAR", desc: "Metallic chrome eagle spread wings. Mirror-finish vinyl, premium quality.", sizes: ["5\"", "8\"", "12\""], colors: ["Chrome", "Gold", "Gunmetal"] },
+            { id: 6, name: "Graffiti Tag", category: "Street", price: 99, rating: 4.6, reviews: 94, emoji: "✍️", tag: "BUDGET PICK", desc: "Custom graffiti-style name tag. Each one handcrafted to order.", sizes: ["4\"", "6\"", "10\""], colors: ["Multi", "Mono", "Neon"] },
+            { id: 7, name: "Mecha Skull", category: "Gothic", price: 269, rating: 4.9, reviews: 29, emoji: "🤖", tag: "PREMIUM", desc: "Cyberpunk mechanical skull fusion. Holographic finish available.", sizes: ["5\"", "8\"", "12\""], colors: ["Holo", "Chrome/Red", "Black/Blue"] },
+            { id: 8, name: "Serpent Wrap", category: "Bikes", price: 349, rating: 5.0, reviews: 18, emoji: "🐍", tag: "CUSTOM", desc: "Full serpent body wrap for bikes. Custom fit, Gopi's signature work.", sizes: ["Kit S", "Kit M", "Kit L"], colors: ["Green/Black", "Red/Gold", "Black/Silver"] },
+        ];
+
+        const CATEGORIES = ["All", "Gothic", "Bikes", "Animals", "Street", "Patriotic"];
+
+        const REVIEWS = [
+            { name: "Sooraj Kumar", rating: 5, text: "Got 3 of my works done here. Gopi is the reason I keep coming back. Extraordinary output every single time.", badge: "Local Guide", date: "3 months ago" },
+            { name: "Praveen", rating: 5, text: "Gopi did an amazing job on my Aprilia RS457. The detailing was so good — lot of dedication and the best result.", badge: "Local Guide", date: "3 months ago" },
+            { name: "Sadam Mathik", rating: 5, text: "Stunning work done by Gopi for my Verna. Give him time and space and the output will be exactly as you liked.", badge: "Verified", date: "1 month ago" },
+        ];
+
+        // --- STYLES ---
+        const G = `
+            @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700;900&family=Space+Mono:wght@400;700&display=swap');
+            *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+            :root {
+                --black: #0a0a0a; --dark: #111111; --card: #161616; --border: #2a2a2a;
+                --red: #e63946; --red-dark: #c1121f; --yellow: #ffd60a; --white: #f8f8f8;
+                --gray: #888; --font-display: 'Bebas Neue', sans-serif;
+                --font-body: 'Barlow Condensed', sans-serif; --font-mono: 'Space Mono', monospace;
+            }
+            body { background: var(--black); color: var(--white); font-family: var(--font-body); overflow-x: hidden; }
+            .nav { position: sticky; top: 0; z-index: 100; background: rgba(10,10,10,0.95); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); padding: 0 24px; height: 64px; display: flex; align-items: center; justify-content: space-between; }
+            .nav-logo { font-family: var(--font-display); font-size: 28px; letter-spacing: 3px; color: var(--white); cursor: pointer; }
+            .nav-logo span { color: var(--red); }
+            .hero { position: relative; min-height: 80vh; display: flex; align-items: center; padding: 60px 40px; text-align: center; justify-content: center; }
+            .hero-title { font-family: var(--font-display); font-size: clamp(60px, 10vw, 100px); line-height: 0.9; }
+            .btn-primary { background: var(--red); color: white; border: none; font-family: var(--font-display); font-size: 20px; padding: 14px 36px; cursor: pointer; margin-top: 20px; }
+            .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; padding: 40px; }
+            .product-card { background: var(--card); border: 1px solid var(--border); padding: 20px; text-align: center; }
+            .emoji-box { font-size: 60px; margin-bottom: 15px; }
+        `;
+
+        // --- COMPONENTS ---
+        function App() {
+            const [page, setPage] = useState("home");
+            return (
+                <div>
+                    <style>{G}</style>
+                    <nav className="nav">
+                        <div className="nav-logo" onClick={() => setPage("home")}>BUDDY<span>.</span></div>
+                        <div style={{display: 'flex', gap: '20px'}}>
+                            <button onClick={() => setPage("home")} style={{background:'none', border:'none', color:'white', cursor:'pointer'}}>HOME</button>
+                            <button onClick={() => setPage("shop")} style={{background:'none', border:'none', color:'white', cursor:'pointer'}}>SHOP</button>
+                        </div>
+                    </nav>
+
+                    {page === "home" ? (
+                        <section className="hero">
+                            <div>
+                                <h1 className="hero-title">BUDDY <span style={{color:'var(--red)'}}>STICKER</span> SHOP</h1>
+                                <p style={{color:'var(--gray)', marginTop:'10px'}}>Premium Custom Vinyl Wraps · Chennai</p>
+                                <button className="btn-primary" onClick={() => setPage("shop")}>VIEW PRODUCTS</button>
+                            </div>
+                        </section>
+                    ) : (
+                        <div className="product-grid">
+                            {PRODUCTS.map(p => (
+                                <div key={p.id} className="product-card">
+                                    <div className="emoji-box">{p.emoji}</div>
+                                    <h2 style={{fontFamily:'var(--font-display)'}}>{p.name}</h2>
+                                    <p style={{color:'var(--red)', fontSize:'24px', margin:'10px 0'}}>₹{p.price}</p>
+                                    <button className="btn-primary" style={{fontSize:'14px', padding:'8px 20px'}}>ADD TO CART</button>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
 </body>
 </html>
