@@ -6,11 +6,9 @@
     <title>Buddy Sticker Shop | Chennai</title>
     
 </head>
-<body style="margin: 0; background-color: #0a0a0a;">
-    <div id="root"></div>
-
-    <script>
-        const { useState, useEffect, useRef } = React;
+<body> 
+<script>
+ import { useState, useEffect, useRef } from "react";
 
 // ── DATA ──────────────────────────────────────────────────────────────────────
 const PRODUCTS = [
@@ -1164,8 +1162,6 @@ function SuccessPage({ navTo, setCart, setOrderDone }) {
     </div>
   );
 }
-const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(<App />);
-            </script>
+</script>
 </body>
 </html>
